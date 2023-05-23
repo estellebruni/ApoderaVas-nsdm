@@ -5,7 +5,7 @@ CHELSA bioclim v2.1 for current climate
 # Environmental variables used for current climate predictions: 
 > Climatologies at High resolution for the Earth Land Surface Areas CHELSA V2.1
 > Time period: 1981-2010
-> Resolution: 30 arc second
+> Resolution: 30 arc second (0.008333333, 0.008333333  (x, y))
 > https://envicloud.wsl.ch/#/?bucket=https%3A%2F%2Fos.zhdk.cloud.switch.ch%2Fenvicloud%2F&prefix=chelsa%2Fchelsa_V2%2FGLOBAL%2Fclimatologies%2F1981-2010%2Fbio%2F
 
 # Citations: 
