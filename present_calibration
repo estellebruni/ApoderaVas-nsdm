@@ -1,0 +1,13 @@
+Preparation covariates for the calibration
+
+CHELSA bioclim v2.1 for current climate 
+
+# Environmental variables used for current climate predictions: 
+> Climatologies at High resolution for the Earth Land Surface Areas CHELSA V2.1
+> Time period: 1981-2010
+> Resolution: 30 arc second
+> https://envicloud.wsl.ch/#/?bucket=https%3A%2F%2Fos.zhdk.cloud.switch.ch%2Fenvicloud%2F&prefix=chelsa%2Fchelsa_V2%2FGLOBAL%2Fclimatologies%2F1981-2010%2Fbio%2F
+
+# Citations: 
+> Karger et al. (2017) Scientific Data, 4, 170122. https://doi.org/10.1038/sdata.2017.122
+> Karger et al. (2018) EnviDat. https://doi.org/10.16904/envidat.228.v2.1 
