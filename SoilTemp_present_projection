@@ -1,0 +1,272 @@
+####
+# SBIO: soil temperature (projection) --------------------------------------------------
+####
+
+
+Preparation of covariates RDS files with 11 soil temperature variables (Lembrechts et al., 2021) and 8 précipitation vairables (CHELSA v2.1 bioclim)
+
+
+
+# (1) Soil temperature - 11 variables (SBIO1 - SBIO11) --------------------
+
+paths <- list.files(path="F:/nsdm_ApoderaVas/covariates/raw_tiff/SoilTemp_v2", 
+                    full.names = TRUE)
+
+rst_stack <- raster::stack(paths)
+# dimensions : 21121, 43201, 912448321, 11  (nrow, ncol, ncell, nlayers)
+# resolution : 0.008333333, 0.008333333  (x, y)
+# extent     : -180, 180.0083, -88.00833, 88  (xmin, xmax, ymin, ymax)
+
+
+# load ocean to have the maximum extent between SBIO and CHELSA bio rasters
+# no need to remove oceans for SBIO
+msk <- raster("F:/nsdm_ApoderaVas/covariates/masked_tiff/mask_ocean.tif")
+msk
+# dimensions : 20880, 43200, 902016000  (nrow, ncol, ncell)
+# resolution : 0.008333333, 0.008333333  (x, y)
+# extent     : -180.0001, 179.9999, -90.00014, 83.99986  (xmin, xmax, ymin, ymax)
+
+# extents are different between rasters!
+ex <- extent(-180, 179.9999, -88.00833, 83.99986) # get min values for each
+
+msk_ex <- setExtent(msk, ex, keepres = TRUE)
+msk_ex
+# dimensions : 20641, 43200, 891691200  (nrow, ncol, ncell)
+# resolution : 0.008333333, 0.008333333  (x, y)
+# extent     : -180, 180, -88.00833, 84  (xmin, xmax, ymin, ymax)
+
+# crop stack with mask_ex
+rst_stemp <- raster::crop(rst_stack, extent(msk_ex))
+# dimensions : 20641, 43200, 891691200, 11  (nrow, ncol, ncell, nlayers)
+# resolution : 0.008333333, 0.008333333  (x, y)
+# extent     : -180, 180, -88.00833, 84  (xmin, xmax, ymin, ymax)
+
+
+plot(rst_stemp[[2]])
+
+rm(list = c("ex", "msk", "msk_ex", "rst_ex", "rst_stack", "rst_stack_ex", "paths"))
+gc()
+
+
+
+
+# change layer names
+names(rst_stemp)
+
+bio <- 
+  names(rst_stemp) %>% str_extract(regex("bio_?[0-9]+", ignore_case = TRUE)) %>% 
+  str_extract("[0-9]+") %>% str_remove("^0") %>% str_c("bio",.)
+bio
+
+new_names <- str_c("glo_bioclim_chelsa2_future_pixel_1979_2013_", bio)
+names(rst_stemp) <- new_names
+names(rst_stemp)
+
+
+# each layer in memory and the into RDS files
+
+if (!dir.exists("SoilTemp_rds")) dir.create("SoilTemp_rds")
+
+r1 <- readAll(rst_stemp[[1]])
+n1 <- str_c("SoilTemp_rds/", names(rst_stemp[[1]]), ".rds")
+saveRDS(r1, n1)
+
+rm(list = c("r1", "n1", "bio", "new_names"))
+gc()
+
+
+r2 <- readAll(rst_stemp[[2]])
+n2 <- str_c("SoilTemp_rds/", names(rst_stemp[[2]]), ".rds")
+saveRDS(r2, n2)
+
+rm(list = c("r2", "n2"))
+gc()
+
+
+r3 <- readAll(rst_stemp[[3]])
+n3 <- str_c("SoilTemp_rds/", names(rst_stemp[[3]]), ".rds")
+saveRDS(r3, n3)
+
+rm(list = c("r3", "n3"))
+gc()
+
+
+r4 <- readAll(rst_stemp[[4]])
+n4 <- str_c("SoilTemp_rds/", names(rst_stemp[[4]]), ".rds")
+saveRDS(r4, n4)
+
+rm(list = c("r4", "n4"))
+gc()
+
+
+r5 <- readAll(rst_stemp[[5]])
+n5 <- str_c("SoilTemp_rds/", names(rst_stemp[[5]]), ".rds")
+saveRDS(r5, n5)
+
+rm(list = c("r5", "n5"))
+gc()
+
+
+r6 <- readAll(rst_stemp[[6]])
+n6 <- str_c("SoilTemp_rds/", names(rst_stemp[[6]]), ".rds")
+saveRDS(r6, n6)
+
+rm(list = c("r6", "n6"))
+gc()
+
+
+r7 <- readAll(rst_stemp[[7]])
+n7 <- str_c("SoilTemp_rds/", names(rst_stemp[[7]]), ".rds")
+saveRDS(r7, n7)
+
+rm(list = c("r7", "n7"))
+gc()
+
+
+r8 <- readAll(rst_stemp[[8]])
+n8 <- str_c("SoilTemp_rds/", names(rst_stemp[[8]]), ".rds")
+saveRDS(r8, n8)
+
+rm(list = c("r8", "n8"))
+gc()
+
+
+r9 <- readAll(rst_stemp[[9]])
+n9 <- str_c("SoilTemp_rds/", names(rst_stemp[[9]]), ".rds")
+saveRDS(r9, n9)
+
+rm(list = c("r9", "n9"))
+gc()
+
+
+r10 <- readAll(rst_stemp[[10]])
+n10 <- str_c("SoilTemp_rds/", names(rst_stemp[[10]]), ".rds")
+saveRDS(r10, n10)
+
+rm(list = c("r10", "n10"))
+gc()
+
+
+r11 <- readAll(rst_stemp[[11]])
+n11 <- str_c("SoilTemp_rds/", names(rst_stemp[[11]]), ".rds")
+saveRDS(r11, n11)
+
+rm(list = c("n11"))
+gc()
+
+
+# keep r11 to mask precipitation layers
+
+
+
+
+# (2) CHELSA Bioclim for precipitations (bio12 - bio19) -------------------
+
+
+paths <- list.files(path="F:/nsdm_ApoderaVas/covariates/masked_tiff/present_precipitations_tif", 
+                    full.names = TRUE)
+
+rst_stack <- raster::stack(paths)
+# dimensions : 20880, 43200, 902016000, 8  (nrow, ncol, ncell, nlayers)
+# resolution : 0.008333333, 0.008333333  (x, y)
+# extent     : -180.0001, 179.9999, -90.00014, 83.99986  (xmin, xmax, ymin, ymax)
+
+
+# change extent and dimensions of stack to fit the one of Soil Temp using r11
+
+r11
+# dimensions : 20641, 43200, 891691200  (nrow, ncol, ncell)
+# resolution : 0.008333333, 0.008333333  (x, y)
+# extent     : -180, 180, -88.00833, 84  (xmin, xmax, ymin, ymax)
+
+# crop stacked raster with r11
+rst_prec <- raster::crop(rst_stack, extent(r11))
+
+rst_prec
+# dimensions : 20641, 43200, 891691200, 8  (nrow, ncol, ncell, nlayers)
+# resolution : 0.008333333, 0.008333333  (x, y)
+# extent     : -180.0001, 179.9999, -88.00847, 83.99986  (xmin, xmax, ymin, ymax)
+
+plot(rst_stemp[[1]]) # in soil temp, Groenland and Antarctica are not appearing
+plot(rst_prec[[1]]) # in chelsa bioclim, Groenland and Antarctica are not appearing
+
+
+# change layer names
+names(rst_prec)
+
+bio <- 
+  names(rst_stack) %>% str_extract(regex("bio_?[0-9]+", ignore_case = TRUE)) %>% 
+  str_extract("[0-9]+") %>% str_remove("^0") %>% str_c("bio",.)
+bio
+
+new_names <- str_c("glo_bioclim_chelsa2_future_pixel_1979_2013_", bio)
+names(rst_prec) <- new_names
+names(rst_prec)
+
+rm(list = c("r11", "rst_stack", "rst_stemp", "bio", "new_names", "paths"))
+gc()
+
+
+
+r1 <- readAll(rst_prec[[1]])
+n1 <- str_c("SoilTemp_rds/", names(rst_prec[[1]]), ".rds")
+saveRDS(r1, n1)
+
+rm(list = c("r1", "n1", "r11", "rst_stack", "rst_stemp"))
+gc()
+
+
+r2 <- readAll(rst_prec[[2]])
+n2 <- str_c("SoilTemp_rds/", names(rst_prec[[2]]), ".rds")
+saveRDS(r2, n2)
+
+rm(list = c("r2", "n2"))
+gc()
+
+
+r3 <- readAll(rst_prec[[3]])
+n3 <- str_c("SoilTemp_rds/", names(rst_prec[[3]]), ".rds")
+saveRDS(r3, n3)
+
+rm(list = c("r3", "n3"))
+gc()
+
+
+r4 <- readAll(rst_prec[[4]])
+n4 <- str_c("SoilTemp_rds/", names(rst_prec[[4]]), ".rds")
+saveRDS(r4, n4)
+
+rm(list = c("r4", "n4"))
+gc()
+
+
+r5 <- readAll(rst_prec[[5]])
+n5 <- str_c("SoilTemp_rds/", names(rst_prec[[5]]), ".rds")
+saveRDS(r5, n5)
+
+rm(list = c("r5", "n5"))
+gc()
+
+
+r6 <- readAll(rst_prec[[6]])
+n6 <- str_c("SoilTemp_rds/", names(rst_prec[[6]]), ".rds")
+saveRDS(r6, n6)
+
+rm(list = c("r6", "n6"))
+gc()
+
+
+r7 <- readAll(rst_prec[[7]])
+n7 <- str_c("SoilTemp_rds/", names(rst_prec[[7]]), ".rds")
+saveRDS(r7, n7)
+
+rm(list = c("r7", "n7"))
+gc()
+
+
+r8 <- readAll(rst_prec[[8]])
+n8 <- str_c("SoilTemp_rds/", names(rst_prec[[8]]), ".rds")
+saveRDS(r8, n8)
+
+rm(list = c("r8", "n8"))
+gc()
