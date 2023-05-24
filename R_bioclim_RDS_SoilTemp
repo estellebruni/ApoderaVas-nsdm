@@ -1,14 +1,60 @@
 ####
-# SBIO: soil temperature (projection) --------------------------------------------------
+# Preparation bioclim covariates for the projection using soil temperature (SBIO) --------------------------------------------------
 ####
 
+# Preparation of covariates RDS files with 11 soil temperature variables (Lembrechts et al., 2021) and 8 precipitation variables (CHELSA v2.1 bioclim)
 
-Preparation of covariates RDS files with 11 soil temperature variables (Lembrechts et al., 2021) and 8 précipitation vairables (CHELSA v2.1 bioclim)
+## DATASET 1 (temperature variables only): Global Soil Bioclim (Lembrechts et al., 2021)
 
+# Global Soil Bioclimatic variables at 30 arc second resolution 
+# Number of varaibles: 11 (SBIO01 - SBIO11)
+# Version: 2
+# Time period: 1979-2013
+# Depth interval: 0-5 cm
+# Resolution: 30 arc second (0.008333333, 0.008333333  (x, y))
+# Extent: -180, 180.0083, -88.00833, 88  (xmin, xmax, ymin, ymax)
+# Dimensions: 21121, 43201, 912448321  (nrow, ncol, ncell)
+
+# Download link: https://zenodo.org/record/7134169#.Y_9Qf3bMKUk
+
+# Citation: 
+# Lembrechts et al., (2021). Global Change Biology, 28(9), 3110-3144. doi.org/10.1111/gcb.16060
+
+
+## DATASET 2 (precipitations variable only): CHELSA bioclim v2.1 for current climate (bio12 - bio19)
+
+# CHELSA: Climatologies at High resolution for the Earth Land Surface Areas 
+# Number of bioclim variables: 8 (bio12 - bio19 - i.e., only variables related to precipitations)
+# Version: CHELSA 2.1
+# Time period: 1981-2010
+# Resolution: 30 arc second (0.008333333, 0.008333333  (x, y))
+# Extent: -180.0001, 179.9999, -90.00014, 83.99986  (xmin, xmax, ymin, ymax)
+# Dimensions: 20880, 43200, 902016000  (nrow, ncol, ncell)
+
+# Download links: 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio12_1981-2010_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio13_1981-2010_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio14_1981-2010_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio15_1981-2010_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio16_1981-2010_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio17_1981-2010_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio18_1981-2010_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio19_1981-2010_V.2.1.tif 
+
+# Citations: 
+# Karger et al. (2017) Scientific Data, 4, 170122. https://doi.org/10.1038/sdata.2017.122
+# Karger et al. (2018) EnviDat. https://doi.org/10.16904/envidat.228.v2.1 
+
+
+library(tidyverse)
+library(raster)
+
+# setwd()
 
 
 # (1) Soil temperature - 11 variables (SBIO1 - SBIO11) --------------------
 
+# path to files in directory containing the 11 raw SBIO TIFF files (SBIO1 - SBIO11)
 paths <- list.files(path="F:/nsdm_ApoderaVas/covariates/raw_tiff/SoilTemp_v2", 
                     full.names = TRUE)
 
@@ -19,7 +65,7 @@ rst_stack <- raster::stack(paths)
 
 
 # load ocean to have the maximum extent between SBIO and CHELSA bio rasters
-# no need to remove oceans for SBIO
+# note: no need to remove oceans for SBIO
 msk <- raster("F:/nsdm_ApoderaVas/covariates/masked_tiff/mask_ocean.tif")
 msk
 # dimensions : 20880, 43200, 902016000  (nrow, ncol, ncell)
@@ -27,7 +73,7 @@ msk
 # extent     : -180.0001, 179.9999, -90.00014, 83.99986  (xmin, xmax, ymin, ymax)
 
 # extents are different between rasters!
-ex <- extent(-180, 179.9999, -88.00833, 83.99986) # get min values for each
+ex <- extent(-180, 179.9999, -88.00833, 83.99986) # max extent between the two rasters
 
 msk_ex <- setExtent(msk, ex, keepres = TRUE)
 msk_ex
@@ -41,16 +87,13 @@ rst_stemp <- raster::crop(rst_stack, extent(msk_ex))
 # resolution : 0.008333333, 0.008333333  (x, y)
 # extent     : -180, 180, -88.00833, 84  (xmin, xmax, ymin, ymax)
 
-
-plot(rst_stemp[[2]])
+# all good: extent is lower now
 
 rm(list = c("ex", "msk", "msk_ex", "rst_ex", "rst_stack", "rst_stack_ex", "paths"))
 gc()
 
 
-
-
-# change layer names
+# change layer name
 names(rst_stemp)
 
 bio <- 
@@ -63,7 +106,7 @@ names(rst_stemp) <- new_names
 names(rst_stemp)
 
 
-# each layer in memory and the into RDS files
+# save each layer in memory and then into RDS files
 
 if (!dir.exists("SoilTemp_rds")) dir.create("SoilTemp_rds")
 
@@ -155,14 +198,13 @@ rm(list = c("n11"))
 gc()
 
 
-# keep r11 to mask precipitation layers
-
+# keep r11 to crop precipitation layers
 
 
 
 # (2) CHELSA Bioclim for precipitations (bio12 - bio19) -------------------
 
-
+# path to directory containing the 8 CHELSA TIFF files with ocean masked (bio12 - bio19)
 paths <- list.files(path="F:/nsdm_ApoderaVas/covariates/masked_tiff/present_precipitations_tif", 
                     full.names = TRUE)
 
@@ -191,7 +233,7 @@ plot(rst_stemp[[1]]) # in soil temp, Groenland and Antarctica are not appearing
 plot(rst_prec[[1]]) # in chelsa bioclim, Groenland and Antarctica are not appearing
 
 
-# change layer names
+# change layer names to fit the SBIO ones
 names(rst_prec)
 
 bio <- 
@@ -207,6 +249,7 @@ rm(list = c("r11", "rst_stack", "rst_stemp", "bio", "new_names", "paths"))
 gc()
 
 
+# save each layer in memory and then into RDS files
 
 r1 <- readAll(rst_prec[[1]])
 n1 <- str_c("SoilTemp_rds/", names(rst_prec[[1]]), ".rds")
@@ -252,7 +295,7 @@ r6 <- readAll(rst_prec[[6]])
 n6 <- str_c("SoilTemp_rds/", names(rst_prec[[6]]), ".rds")
 saveRDS(r6, n6)
 
-rm(list = c("r6", "n6"))
+rm(list = ls())
 gc()
 
 
