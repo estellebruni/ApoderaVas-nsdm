@@ -5,7 +5,7 @@
 # DATASET: CHELSA bioclim v2.1 for current climate 
 
 # CHELSA: Climatologies at High resolution for the Earth Land Surface Areas 
-# Bioclim variable: ai
+# Variable: ai
 # Version: CHELSA 2.1
 # Time period: 1981-2010
 # Resolution: 30 arc second (0.008333333, 0.008333333  (x, y))
