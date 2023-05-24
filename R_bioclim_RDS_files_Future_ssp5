@@ -13,6 +13,7 @@
 # Resolution: 30 arc second (0.008333333, 0.008333333  (x, y))
 # Extent: -180.0001, 179.9999, -90.00014, 83.99986  (xmin, xmax, ymin, ymax)
 # Dimensions: 20880, 43200, 902016000  (nrow, ncol, ncell)
+# CRS: +proj=longlat +datum=WGS84 +no_defs 
 
 # Download links:
 # https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp585/bio/CHELSA_bio10_2071-2100_ipsl-cm6a-lr_ssp585_V.2.1.tif 
