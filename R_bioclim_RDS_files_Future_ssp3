@@ -1,0 +1,255 @@
+####
+# Preparation bioclim covariates for the future ssp3 (IPSL-CM6A-LR SSP3 2071-2100) ---------------------------------------------------
+####
+
+# DATASET: CHELSA bioclim v2.1 for current climate - IPSL-CM6A-LR SSP3 2071-2100
+
+# CHELSA: Climatologies at High resolution for the Earth Land Surface Areas 
+# Number of bioclim variables: 19 (bio1 - bio19)
+# Version: CHELSA 2.1
+# GCM: IPSL-CM6A-LR
+# Scenario: SSP3
+# Time period: 2071-2100
+# Resolution: 30 arc second (0.008333333, 0.008333333  (x, y))
+# Extent: -180.0001, 179.9999, -90.00014, 83.99986  (xmin, xmax, ymin, ymax)
+# Dimensions: 20880, 43200, 902016000  (nrow, ncol, ncell)
+
+# Download links:
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio10_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio11_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio12_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio13_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio14_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio15_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio16_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio17_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio18_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio19_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio1_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio2_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio3_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio4_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio5_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio6_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio7_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio8_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio9_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
+
+# Citations: 
+# Karger et al. (2017) Scientific Data, 4, 170122. https://doi.org/10.1038/sdata.2017.122
+# Karger et al. (2018) EnviDat. https://doi.org/10.16904/envidat.228.v2.1 
+
+
+library(tidyverse)
+library(raster)
+
+# setwd()
+
+# Mask oceans, change layer names and save as TIFF -------------------------------------------
+
+# path to directory containing the 19 raw CHELSA TIFF files
+paths_ssp3 <- list.files(
+  path="~/Documents/bioclim_var/CHELSA_v2.1/IPSL-CM6A-LR_2071-2100_ssp3/",
+  full.names = TRUE)
+
+rast_ssp3 <- raster::stack(paths_ssp3)
+names(rast_ssp3) 
+
+# change layer names
+bio_ssp3 <- 
+  names(rast_ssp3) %>% str_extract(regex("bio_?[0-9]+", ignore_case = TRUE)) %>% 
+  str_extract("[0-9]+") %>% str_remove("^0") %>% str_c("bio",.)
+bio_ssp3
+
+ssp3_names <- str_c("glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_", bio_ssp3)
+names(rast_ssp3) <- ssp3_names
+names(rast_ssp3)
+
+# load mask to remove ocean
+msk <- raster("mask_ocean.tif")
+
+# mask ocean in each layer
+r <- raster::mask(rast_ssp3, msk)
+
+# save each layer in separate tiff files
+rst_u <- raster::unstack(r)
+if (!dir.exists("ssp3_tif")) dir.create("ssp3_tif")
+rds_p <- str_c("ssp3_tif/", ssp3_names, ".tif")
+rst_out <- walk2(rst_u, rds_p, ~ writeRaster(.x, .y))
+
+
+# Save each layer in individual RDS files -------------------------------------------
+
+# path to directory containing the 19 masked CHELSA TIFF files
+
+paths <- list.files(path="F:/nsdm_ApoderaVas/covariates/masked_tiff/ssp3_tif", 
+                    full.names = TRUE)
+
+ssp3_stack <- raster::stack(paths)
+
+names(ssp3_stack)
+# [1] "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio1"  "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio10"
+# [3] "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio11" "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio12"
+# [5] "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio13" "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio14"
+# [7] "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio15" "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio16"
+# [9] "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio17" "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio18"
+# [11] "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio19" "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio2" 
+# [13] "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio3"  "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio4" 
+# [15] "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio5"  "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio6" 
+# [17] "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio7"  "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio8" 
+# [19] "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio9" 
+
+
+if (!dir.exists("ssp3_rds")) dir.create("ssp3_rds")
+
+r1 <- readAll(ssp3_stack[[1]])
+n1 <- str_c("ssp3_rds/", names(ssp3_stack[[1]]), ".rds")
+saveRDS(r1, n1)
+
+rm(list = c("r1", "n1"))
+gc()
+
+
+r2 <- readAll(ssp3_stack[[2]])
+n2 <- str_c("ssp3_rds/", names(ssp3_stack[[2]]), ".rds")
+saveRDS(r2, n2)
+
+rm(list = c("r2", "n2"))
+gc()
+
+
+r3 <- readAll(ssp3_stack[[3]])
+n3 <- str_c("ssp3_rds/", names(ssp3_stack[[3]]), ".rds")
+saveRDS(r3, n3)
+
+rm(list = c("r3", "n3"))
+gc()
+
+
+r4 <- readAll(ssp3_stack[[4]])
+n4 <- str_c("ssp3_rds/", names(ssp3_stack[[4]]), ".rds")
+saveRDS(r4, n4)
+
+rm(list = c("r4", "n4"))
+gc()
+
+
+r5 <- readAll(ssp3_stack[[5]])
+n5 <- str_c("ssp3_rds/", names(ssp3_stack[[5]]), ".rds")
+saveRDS(r5, n5)
+
+rm(list = c("r5", "n5"))
+gc()
+
+
+r6 <- readAll(ssp3_stack[[6]])
+n6 <- str_c("ssp3_rds/", names(ssp3_stack[[6]]), ".rds")
+saveRDS(r6, n6)
+
+rm(list = c("r6", "n6"))
+gc()
+
+
+r7 <- readAll(ssp3_stack[[7]])
+n7 <- str_c("ssp3_rds/", names(ssp3_stack[[7]]), ".rds")
+saveRDS(r7, n7)
+
+rm(list = c("r7", "n7"))
+gc()
+
+
+r8 <- readAll(ssp3_stack[[8]])
+n8 <- str_c("ssp3_rds/", names(ssp3_stack[[8]]), ".rds")
+saveRDS(r8, n8)
+
+rm(list = c("r8", "n8"))
+gc()
+
+
+r9 <- readAll(ssp3_stack[[9]])
+n9 <- str_c("ssp3_rds/", names(ssp3_stack[[9]]), ".rds")
+saveRDS(r9, n9)
+
+rm(list = c("r9", "n9"))
+gc()
+
+
+r10 <- readAll(ssp3_stack[[10]])
+n10 <- str_c("ssp3_rds/", names(ssp3_stack[[10]]), ".rds")
+saveRDS(r10, n10)
+
+rm(list = c("r10", "n10"))
+gc()
+
+
+r11 <- readAll(ssp3_stack[[11]])
+n11 <- str_c("ssp3_rds/", names(ssp3_stack[[11]]), ".rds")
+saveRDS(r11, n11)
+
+rm(list = c("r11", "n11"))
+gc()
+
+
+r12 <- readAll(ssp3_stack[[12]])
+n12 <- str_c("ssp3_rds/", names(ssp3_stack[[12]]), ".rds")
+saveRDS(r12, n12)
+
+rm(list = c("r12", "n12"))
+gc()
+
+
+r13 <- readAll(ssp3_stack[[13]])
+n13 <- str_c("ssp3_rds/", names(ssp3_stack[[13]]), ".rds")
+saveRDS(r13, n13)
+
+rm(list = c("r13", "n13"))
+gc()
+
+
+r14 <- readAll(ssp3_stack[[14]])
+n14 <- str_c("ssp3_rds/", names(ssp3_stack[[14]]), ".rds")
+saveRDS(r14, n14)
+
+rm(list = c("r14", "n14"))
+gc()
+
+
+r15 <- readAll(ssp3_stack[[15]])
+n15 <- str_c("ssp3_rds/", names(ssp3_stack[[15]]), ".rds")
+saveRDS(r15, n15)
+
+rm(list = c("r15", "n15"))
+gc()
+
+
+r16 <- readAll(ssp3_stack[[16]])
+n16 <- str_c("ssp3_rds/", names(ssp3_stack[[16]]), ".rds")
+saveRDS(r16, n16)
+
+rm(list = c("r16", "n16"))
+gc()
+
+
+r17 <- readAll(ssp3_stack[[17]])
+n17 <- str_c("ssp3_rds/", names(ssp3_stack[[17]]), ".rds")
+saveRDS(r17, n17)
+
+rm(list = c("r17", "n17"))
+gc()
+
+
+r18 <- readAll(ssp3_stack[[18]])
+n18 <- str_c("ssp3_rds/", names(ssp3_stack[[18]]), ".rds")
+saveRDS(r18, n18)
+
+rm(list = c("r18", "n18"))
+gc()
+
+
+r19 <- readAll(ssp3_stack[[19]])
+n19 <- str_c("ssp3_rds/", names(ssp3_stack[[19]]), ".rds")
+saveRDS(r19, n19)
+
+rm(list = ls())
+gc()
+
