@@ -1,0 +1,68 @@
+####
+# Preparation RDS files of Topographic Position Index (TPI) --------------------------------------------------
+####
+
+library(tidyverse)
+library(raster)
+
+
+# create TIFF files first: github.com/estellebruni/ApoderaVas-nsdm/blob/c814ac7d4f56181543cb269d0faa79157a80592c/R_topo_TIFF_files_Topographic_Position_Index_TERRA
+
+if (!dir.exists("tpi/tpi_rds")) dir.create("tpi/tpi_rds")
+
+
+# Present
+
+tpi <- raster("tpi/glo_topo_chelsa2_present_pixel_1981_2010_tpi.tif")
+
+r1 <- readAll(tpi)
+n1 <- str_c("tpi/tpi_rds/", names(tpi), ".rds")
+saveRDS(r1, n1)
+
+rm(list = c("r1", "n1", "tpi"))
+gc()
+
+
+# FUTURE ssp3
+tpi_ssp3 <- raster("tpi/glo_topo_chelsa2_future_pixel_2071_2100_ssp3_tpi.tif")
+
+r_ssp3 <- readAll(tpi_ssp3)
+n_ssp3 <- str_c("tpi/tpi_rds/", names(tpi_ssp3), ".rds")
+saveRDS(r_ssp3, n_ssp3)
+
+rm(list = c("r_ssp3", "n_ssp3", "tpi_ssp3"))
+gc()
+
+
+# FUTURE ssp5
+tpi_ssp5 <- raster("tpi/glo_topo_chelsa2_future_pixel_2071_2100_ssp5_tpi.tif")
+
+r_ssp5 <- readAll(tpi_ssp5)
+n_ssp5 <- str_c("tpi/tpi_rds/", names(tpi_ssp5), ".rds")
+saveRDS(r_ssp5, n_ssp5)
+
+rm(list = c("r_ssp5", "n_ssp5", "tpi_ssp5"))
+gc()
+
+
+
+# SoilTemp
+tpi_soilT <- raster("tpi/glo_topo_chelsa2_future_pixel_1979_2013_tpi.tif")
+
+r_soilT <- readAll(tpi_soilT)
+n_soilT <- str_c("tpi/tpi_rds/", names(tpi_soilT), ".rds")
+saveRDS(r_soilT, n_soilT)
+
+rm(list = c("r_soilT", "n_soilT", "tpi_soilT"))
+gc()
+
+
+# LGM (TraCE21k, -200)
+tpi_lgm <- raster("tpi/glo_topo_chelsa2_future_pixel_lgm_tpi.tif")
+
+r_lgm <- readAll(tpi_lgm)
+n_lgm <- str_c("tpi/tpi_rds/", names(tpi_lgm), ".rds")
+saveRDS(r_lgm, n_lgm)
+
+rm(list = c("r_lgm", "n_lgm", "tpi_lgm"))
+gc()
