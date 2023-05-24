@@ -14,6 +14,7 @@
 # Resolution: 30 arc second (0.008333333, 0.008333333  (x, y))
 # Extent: -180, 180.0083, -88.00833, 88  (xmin, xmax, ymin, ymax)
 # Dimensions: 21121, 43201, 912448321  (nrow, ncol, ncell)
+# CRS: +proj=longlat +datum=WGS84 +no_defs 
 
 # Download link: https://zenodo.org/record/7134169#.Y_9Qf3bMKUk
 
