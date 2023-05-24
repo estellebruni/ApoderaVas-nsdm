@@ -1,0 +1,69 @@
+####
+# Preparation TIFF of Topographic Position Index (TPI) --------------------------------------------------
+####
+
+library(tidyverse)
+library(terra)
+
+dem_current<-rast("F:/nsdm_ApoderaVas/covariates/tpi/dem/dem_latlong.nc")
+# file loaded from: https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/input/dem_latlong.nc
+# dem = digitial elevation model
+
+# mask oceans
+msk <- rast("F:/nsdm_ApoderaVas/covariates/masked_tiff/mask_ocean.tif")
+
+dem_m <- terra::mask(dem_current, msk)
+
+# create Topographic Position Index for the present
+tpi<-terrain(dem_m, v="TPI")
+names(tpi) # "TPI"
+
+# change layer name
+names(tpi) <- "glo_topo_chelsa2_present_pixel_1981_2010_tpi"
+           
+if (!dir.exists("tpi")) dir.create("tpi")
+
+writeRaster(tpi, "tpi/glo_topo_chelsa2_present_pixel_1981_2010_tpi.tif", 
+            overwrite=TRUE)
+
+
+# FUTURE ssp3
+tpi_ssp3 <- tpi
+names(tpi_ssp3) <- "glo_topo_chelsa2_future_pixel_2071_2100_ssp3_tpi"
+writeRaster(tpi_ssp3, "tpi/glo_topo_chelsa2_future_pixel_2071_2100_ssp3_tpi.tif", 
+            overwrite=TRUE)
+
+
+# FUTURE ssp5
+tpi_ssp5 <- tpi
+names(tpi_ssp5) <- "glo_topo_chelsa2_future_pixel_2071_2100_ssp5_tpi"
+writeRaster(tpi_ssp5, "tpi/glo_topo_chelsa2_future_pixel_2071_2100_ssp5_tpi.tif", 
+            overwrite=TRUE)
+
+
+
+# SoilTemp
+tpi_soilT <- tpi
+names(tpi_soilT) <- "glo_topo_chelsa2_future_pixel_1979_2013_tpi"
+
+# Soil temp and CHELSA rasters don't have the same extent!
+# get maximal extent to rast all tif together + crop what is outside the extent
+e <- ext(-180, 179.9999, -88.00833, 83.99986)
+soilT_crop <- terra::crop(tpi_soilT, e)
+
+writeRaster(soilT_crop, "tpi/glo_topo_chelsa2_future_pixel_1979_2013_tpi.tif", 
+            overwrite=TRUE)
+
+
+rm(list = ls())
+gc()
+
+
+# LGM (TraCE21k, -200)
+dem_lgm<-rast("F:/nsdm_ApoderaVas/covariates/raw_tiff/CHELSA_v2.1/CHELSA_TraCE21k_dem_-200_V1.0.tif")
+# file loaded from: https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/orog/CHELSA_TraCE21k_dem_-200_V1.0.tif
+
+tpi_lgm<-terrain(dem_lgm, v="TPI")
+names(tpi_lgm) <- "glo_topo_chelsa2_future_pixel_lgm_tpi"
+writeRaster(tpi_lgm, "tpi/glo_topo_chelsa2_future_pixel_lgm_tpi.tif", 
+            overwrite=TRUE)
