@@ -1,3 +1,19 @@
+library(tidyverse)
+library(raster)
+
+# setwd()
+
+sessionInfo()
+# R version 4.2.2 (2022-10-31 ucrt)
+# Platform: x86_64-w64-mingw32/x64 (64-bit)
+# Running under: Windows 10 x64 (build 22621)
+# other attached packages:
+# [1] raster_3.6-20   sp_1.5-1        lubridate_1.9.2 forcats_1.0.0   stringr_1.5.0   dplyr_1.1.2     purrr_1.0.1     readr_2.1.4     tidyr_1.3.0     tibble_3.2.1   
+# [11] ggplot2_3.4.2   tidyverse_2.0.0
+
+
+
+
 ####
 # *** RUN1: Future IPSL-CM6A-LR 2071-2100 ssp3 (projection) ------------------------------------
 ####
@@ -42,19 +58,6 @@
 # Karger et al. (2017) Scientific Data, 4, 170122. https://doi.org/10.1038/sdata.2017.122
 # Karger et al. (2018) EnviDat. https://doi.org/10.16904/envidat.228.v2.1 
 
-
-library(tidyverse)
-library(raster)
-
-setwd()
-
-# sessionInfo()
-# R version 4.2.2 (2022-10-31 ucrt)
-# Platform: x86_64-w64-mingw32/x64 (64-bit)
-# Running under: Windows 10 x64 (build 22621)
-# other attached packages:
-# [1] raster_3.6-20   sp_1.5-1        lubridate_1.9.2 forcats_1.0.0   stringr_1.5.0   dplyr_1.1.2     purrr_1.0.1     readr_2.1.4     tidyr_1.3.0     tibble_3.2.1   
-# [11] ggplot2_3.4.2   tidyverse_2.0.0
 
 
 # create raster stack with all raw tiff files  ----------------------------
