@@ -1,5 +1,5 @@
 ####
-# Preparation bioclim covariates for the future ssp3 (IPSL-CM6A-LR SSP3 2071-2100) ---------------------------------------------------
+# *** RUN1: Future IPSL-CM6A-LR 2071-2100 ssp3 (projection) ------------------------------------
 ####
 
 # DATASET: CHELSA bioclim v2.1 for current climate - IPSL-CM6A-LR SSP3 2071-2100
@@ -15,7 +15,7 @@
 # Dimensions: 20880, 43200, 902016000  (nrow, ncol, ncell)
 # CRS: +proj=longlat +datum=WGS84 +no_defs 
 
-# Download links:
+# Download links (=raw tiff files):
 # https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio10_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
 # https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio11_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
 # https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio12_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
@@ -36,6 +36,8 @@
 # https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio8_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
 # https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/2071-2100/IPSL-CM6A-LR/ssp370/bio/CHELSA_bio9_2071-2100_ipsl-cm6a-lr_ssp370_V.2.1.tif 
 
+# create a folder containing all 19 raw tiff files
+
 # Citations: 
 # Karger et al. (2017) Scientific Data, 4, 170122. https://doi.org/10.1038/sdata.2017.122
 # Karger et al. (2018) EnviDat. https://doi.org/10.16904/envidat.228.v2.1 
@@ -44,62 +46,84 @@
 library(tidyverse)
 library(raster)
 
-# setwd()
+setwd()
 
-# Mask oceans, change layer names and save as TIFF -------------------------------------------
-
-# path to directory containing the 19 raw CHELSA TIFF files
-paths_ssp3 <- list.files(
-  path="~/Documents/bioclim_var/CHELSA_v2.1/IPSL-CM6A-LR_2071-2100_ssp3/",
-  full.names = TRUE)
-
-rast_ssp3 <- raster::stack(paths_ssp3)
-names(rast_ssp3) 
-
-# change layer names
-bio_ssp3 <- 
-  names(rast_ssp3) %>% str_extract(regex("bio_?[0-9]+", ignore_case = TRUE)) %>% 
-  str_extract("[0-9]+") %>% str_remove("^0") %>% str_c("bio",.)
-bio_ssp3
-
-ssp3_names <- str_c("glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_", bio_ssp3)
-names(rast_ssp3) <- ssp3_names
-names(rast_ssp3)
-
-# load mask to remove ocean
-msk <- raster("mask_ocean.tif")
-
-# mask ocean in each layer
-r <- raster::mask(rast_ssp3, msk)
-
-# save each layer in separate tiff files
-rst_u <- raster::unstack(r)
-if (!dir.exists("ssp3_tif")) dir.create("ssp3_tif")
-rds_p <- str_c("ssp3_tif/", ssp3_names, ".tif")
-rst_out <- walk2(rst_u, rds_p, ~ writeRaster(.x, .y))
+# sessionInfo()
+# R version 4.2.2 (2022-10-31 ucrt)
+# Platform: x86_64-w64-mingw32/x64 (64-bit)
+# Running under: Windows 10 x64 (build 22621)
+# other attached packages:
+# [1] raster_3.6-20   sp_1.5-1        lubridate_1.9.2 forcats_1.0.0   stringr_1.5.0   dplyr_1.1.2     purrr_1.0.1     readr_2.1.4     tidyr_1.3.0     tibble_3.2.1   
+# [11] ggplot2_3.4.2   tidyverse_2.0.0
 
 
-# Save each layer in individual RDS files -------------------------------------------
+# create raster stack with all raw tiff files  ----------------------------
 
-# path to directory containing the 19 masked CHELSA TIFF files
-
-paths <- list.files(path="F:/nsdm_ApoderaVas/covariates/masked_tiff/ssp3_tif", 
+# create list with path to all 19 raw tiff files
+paths <- list.files(path="F:/nsdm_ApoderaVas/covariates/raw_tiff/CHELSA_v2.1/IPSL-CM6A-LR_2071-2100_ssp3", 
                     full.names = TRUE)
 
-ssp3_stack <- raster::stack(paths)
+rst_stack <- raster::stack(paths)
 
-names(ssp3_stack)
-# [1] "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio1"  "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio10"
-# [3] "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio11" "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio12"
-# [5] "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio13" "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio14"
-# [7] "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio15" "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio16"
-# [9] "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio17" "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio18"
-# [11] "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio19" "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio2" 
-# [13] "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio3"  "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio4" 
-# [15] "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio5"  "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio6" 
-# [17] "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio7"  "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio8" 
-# [19] "glo_bioclim_chelsa2_future_pixel_2071_2100_ssp3_bio9" 
+# > names(rst_stack)
+# [1] "CHELSA_bio1_2071.2100_ipsl.cm6a.lr_ssp370_V.2.1"  "CHELSA_bio10_2071.2100_ipsl.cm6a.lr_ssp370_V.2.1" "CHELSA_bio11_2071.2100_ipsl.cm6a.lr_ssp370_V.2.1"
+# [4] "CHELSA_bio12_2071.2100_ipsl.cm6a.lr_ssp370_V.2.1" "CHELSA_bio13_2071.2100_ipsl.cm6a.lr_ssp370_V.2.1" "CHELSA_bio14_2071.2100_ipsl.cm6a.lr_ssp370_V.2.1"
+# [7] "CHELSA_bio15_2071.2100_ipsl.cm6a.lr_ssp370_V.2.1" "CHELSA_bio16_2071.2100_ipsl.cm6a.lr_ssp370_V.2.1" "CHELSA_bio17_2071.2100_ipsl.cm6a.lr_ssp370_V.2.1"
+# [10] "CHELSA_bio18_2071.2100_ipsl.cm6a.lr_ssp370_V.2.1" "CHELSA_bio19_2071.2100_ipsl.cm6a.lr_ssp370_V.2.1" "CHELSA_bio2_2071.2100_ipsl.cm6a.lr_ssp370_V.2.1" 
+# [13] "CHELSA_bio3_2071.2100_ipsl.cm6a.lr_ssp370_V.2.1"  "CHELSA_bio4_2071.2100_ipsl.cm6a.lr_ssp370_V.2.1"  "CHELSA_bio5_2071.2100_ipsl.cm6a.lr_ssp370_V.2.1" 
+# [16] "CHELSA_bio6_2071.2100_ipsl.cm6a.lr_ssp370_V.2.1"  "CHELSA_bio7_2071.2100_ipsl.cm6a.lr_ssp370_V.2.1"  "CHELSA_bio8_2071.2100_ipsl.cm6a.lr_ssp370_V.2.1" 
+# [19] "CHELSA_bio9_2071.2100_ipsl.cm6a.lr_ssp370_V.2.1" 
 
+
+
+# change layer names ------------------------------------------------------
+
+# level = glo
+# category = bioclim
+# dataset = chelsa2
+# period = future
+# sampling scale = pixel
+# subperiod = 2071_2100ssp3
+# scenario: sce1
+
+bio <- 
+  names(rst_stack) %>% str_extract(regex("bio_?[0-9]+", ignore_case = TRUE)) %>% 
+  str_extract("[0-9]+") %>% str_remove("^0") %>% str_c("bio",.)
+
+# > bio
+# [1] "bio1"  "bio10" "bio11" "bio12" "bio13" "bio14" "bio15" "bio16" "bio17" "bio18" "bio19" "bio2"  "bio3"  "bio4"  "bio5"  "bio6"  "bio7"  "bio8"  "bio9"
+
+new_names <- str_c("glo_bioclim_chelsa2_future_pixel_2071_2100ssp3_sce1_", bio)
+names(rst_stack) <- new_names
+names(rst_stack)
+
+# > names(rst_stack)
+# [1] "glo_bioclim_chelsa2_future_pixel_2071_2100ssp3_sce1_bio1"  "glo_bioclim_chelsa2_future_pixel_2071_2100ssp3_sce1_bio10"
+# [3] "glo_bioclim_chelsa2_future_pixel_2071_2100ssp3_sce1_bio11" "glo_bioclim_chelsa2_future_pixel_2071_2100ssp3_sce1_bio12"
+# [5] "glo_bioclim_chelsa2_future_pixel_2071_2100ssp3_sce1_bio13" "glo_bioclim_chelsa2_future_pixel_2071_2100ssp3_sce1_bio14"
+# [7] "glo_bioclim_chelsa2_future_pixel_2071_2100ssp3_sce1_bio15" "glo_bioclim_chelsa2_future_pixel_2071_2100ssp3_sce1_bio16"
+# [9] "glo_bioclim_chelsa2_future_pixel_2071_2100ssp3_sce1_bio17" "glo_bioclim_chelsa2_future_pixel_2071_2100ssp3_sce1_bio18"
+# [11] "glo_bioclim_chelsa2_future_pixel_2071_2100ssp3_sce1_bio19" "glo_bioclim_chelsa2_future_pixel_2071_2100ssp3_sce1_bio2" 
+# [13] "glo_bioclim_chelsa2_future_pixel_2071_2100ssp3_sce1_bio3"  "glo_bioclim_chelsa2_future_pixel_2071_2100ssp3_sce1_bio4" 
+# [15] "glo_bioclim_chelsa2_future_pixel_2071_2100ssp3_sce1_bio5"  "glo_bioclim_chelsa2_future_pixel_2071_2100ssp3_sce1_bio6" 
+# [17] "glo_bioclim_chelsa2_future_pixel_2071_2100ssp3_sce1_bio7"  "glo_bioclim_chelsa2_future_pixel_2071_2100ssp3_sce1_bio8" 
+# [19] "glo_bioclim_chelsa2_future_pixel_2071_2100ssp3_sce1_bio9"  
+
+
+
+# mask oceans -------------------------------------------------------------
+
+msk <- raster("F:/nsdm_ApoderaVas/covariates/masked_tiff/mask_ocean.tif")
+
+ssp3_stack <- raster::mask(rst_stack, msk)
+
+
+rm(list = c("rst_stack", "msk", "bio", "new_names", "paths"))
+gc()
+
+
+
+# save each layer separately in memory and then into RDS files -----------------------
 
 if (!dir.exists("ssp3_rds")) dir.create("ssp3_rds")
 
@@ -253,4 +277,3 @@ saveRDS(r19, n19)
 
 rm(list = ls())
 gc()
-
