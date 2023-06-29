@@ -1,1 +1,55 @@
+library(tidyverse)
+library(terra)
+
+
+
+# Range shifts between the LGM (past) and present climate -----------------
+
+lgm <- rast("G:/estelle_nsdm/MESS/MESS_PASTlgm_climate_final_map.tif") 
+
+pres <- rast("G:/estelle_nsdm/MESS/MESS_current_climate_final_map.tif") 
+
+diffLGM <- pres - lgm
+
+writeRaster(diffLGM, "map_range_shift_LGM_vs_Present.tiff", overwrite=TRUE)
+
+rm(ls="lgm", "diffLGM", "colfunc")
+gc()
+
+
+# Range shifts between the present and future climate (IPSL-CM6R-LR 2071-2100 SSP3) -----------------
+
+ssp3 <- rast("G:/estelle_nsdm/MESS/MESS_FUTssp3_climate_final_map.tif")
+
+dif_ssp3 <- ssp3 - pres
+
+writeRaster(dif_ssp3, "map_range_shift_Present_vs_Future-SSP3.tiff", overwrite=TRUE)
+
+rm(ls="ssp3")
+gc()
+
+# Range shifts between the present and future climate (IPSL-CM6R-LR 2071-2100 ssp5) -----------------
+
+ssp5 <- rast("G:/estelle_nsdm/MESS/MESS_FUTssp5_climate_final_map.tif")
+
+dif_ssp5 <- ssp5 - pres
+
+writeRaster(dif_ssp5, "map_range_shift_Present_vs_Future-ssp5.tiff", overwrite=TRUE)
+
+rm(ls="ssp5")
+gc()
+
+# Range shifts between the present CHELSA and the present SoilTemp -----------------
+
+soiltemp <- rast("G:/estelle_nsdm/MESS/MESS_SoilTemp/MESS_SoilTemp_final_map.tif")
+
+pres_ok <- terra::crop(pres, soiltemp)
+
+dif_soiltemp <- soiltemp - pres_ok
+plot(dif_soiltemp)
+
+writeRaster(dif_soiltemp, "map_range_shift_PresentCHELSA_vs_Soiltemp.tiff", overwrite=TRUE)
+
+rm(ls="soiltemp")
+gc()
 
