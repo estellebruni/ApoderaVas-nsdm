@@ -45,7 +45,6 @@ rm(list = c("r_ssp5", "n_ssp5", "tpi_ssp5"))
 gc()
 
 
-
 # SoilTemp
 tpi_soilT <- raster("tpi/glo_topo_chelsa2_future_pixel_1979_2013_tpi.tif")
 
@@ -54,15 +53,4 @@ n_soilT <- str_c("tpi/tpi_rds/", names(tpi_soilT), ".rds")
 saveRDS(r_soilT, n_soilT)
 
 rm(list = c("r_soilT", "n_soilT", "tpi_soilT"))
-gc()
-
-
-# LGM (TraCE21k, -200)
-tpi_lgm <- raster("tpi/glo_topo_chelsa2_future_pixel_lgm_tpi.tif")
-
-r_lgm <- readAll(tpi_lgm)
-n_lgm <- str_c("tpi/tpi_rds/", names(tpi_lgm), ".rds")
-saveRDS(r_lgm, n_lgm)
-
-rm(list = c("r_lgm", "n_lgm", "tpi_lgm"))
 gc()
