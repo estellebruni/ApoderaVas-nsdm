@@ -1,1 +1,314 @@
+####
+# Multivariate environmental similarity surface (MESS) as desribed by Elith et al., 2010 --------------------------------------------------
+####
+
+library(tidyverse)
+library(raster)
+library(dismo)
+
+
+# PRESENT: CHELSA v2.1 1981-2010 -------------------------------------------------------------------------
+
+# 1 create raster layer with environmental variables (bioclim) selected by n-SDM
+pres_stack <- list.files(path="E:/nsdm_ApoderaVas/covariates/raw_tiff/CHELSA_v2.1/1981-2010",
+                       pattern = c("bio1_|bio2|bio4|bio15|bio16|bio19"),
+                       full.names = TRUE) %>% 
+  raster::stack()
+  
+
+# 2 change variable names
+names(pres_stack)
+
+bio <- 
+  names(pres_stack) %>% str_extract(regex("bio_?[0-9]+", ignore_case = TRUE)) %>% 
+  str_extract("[0-9]+") %>% str_remove("^0") %>% str_c("bio",.)
+
+names(pres_stack) <- bio
+names(pres_stack)
+
+
+# stack raster with TPI
+pres_tpi <- readRDS("E:/nsdm_ApoderaVas/covariates/tpi/tpi_rds/glo_topo_chelsa2_present_pixel_1981_2010_tpi.rds")
+names(pres_tpi) <- "tpi"
+
+pres_ok <- stack(pres_stack, pres_tpi)
+names(pres_ok)
+
+rm(list = c("pres_stack", "pres_tpi", "bio"))
+gc()
+
+
+# 3 mask ocean
+msk <- raster("E:/nsdm_ApoderaVas/covariates/masked_tiff/mask_ocean.tif")
+pres_m <- raster::mask(pres_ok, msk)
+
+rm(list = c("pres_ok", "msk"))
+gc()
+
+
+# 4 get Apodera vas occurrences and background absences
+occ_apo <- readRDS("E:/nsdm_ApoderaVas/species/ApoVas_occ_pa.rds") %>% 
+  subset(., select=-c(pa, species))
+
+
+# 5 extract variable values at each occurrence point
+occ_env <- raster::extract(pres_m, occ_apo) %>% 
+  as.data.frame() %>% 
+  drop_na("bio1")
+
+saveRDS(occ_env, "MESS_current_climate_rfpnt.RDS")
+
+# 6 Compute MESS
+mess_pres <- mess(pres_m, occ_env)
+
+mess_pres_m <- readAll(mess_pres)
+
+writeRaster(mess_pres_m, "MESS_current_climate.tif", overwrite=TRUE)
+
+# 7 create binary raster layer with mess values 
+mess_pres_m[mess_pres_m < 0] <- 0 # =outside reference environmental conditions range
+mess_pres_m[mess_pres_m > 0] <- 1
+
+writeRaster(mess_pres_m, "MESS_current_climate_binary.tif", overwrite=TRUE)
+
+# 8 modify ensemble maps with mess values
+pres_ens <- raster("C:/Users/ebruni/Documents/run1/d8_ensembles/glo/Apodera vas/Apodera.vas_glo_ensemble.tif")
+plot(pres_ens)
+
+pres_ok <- pres_ens * mess_pres_m
+plot(pres_ok)
+
+writeRaster(pres_ok, "MESS_current_climate_final_map.tif", overwrite=TRUE)
+
+rm(list = ls())
+gc()
+
+
+
+# FUTURE: CHELSA v2.1 IPSL-CM6A-LR 2071-2100 SSP3 -------------------------------------------------------------------------
+
+# 1 create raster layer with environmental variables (bioclim) selected by n-SDM
+ssp3_stack <- list.files(path="E:/nsdm_ApoderaVas/covariates/raw_tiff/CHELSA_v2.1/IPSL-CM6A-LR_2071-2100_ssp3",
+                         pattern = c("bio1_|bio2|bio4|bio15|bio16|bio19"),
+                         full.names = TRUE) %>% 
+  raster::stack()
+
+
+# 2 change variable names
+names(ssp3_stack)
+
+bio <- 
+  names(ssp3_stack) %>% str_extract(regex("bio_?[0-9]+", ignore_case = TRUE)) %>% 
+  str_extract("[0-9]+") %>% str_remove("^0") %>% str_c("bio",.)
+
+names(ssp3_stack) <- bio
+names(ssp3_stack)
+
+
+# stack raster with TPI
+# TPI is the same as for current climate
+ssp3_tpi <- readRDS("E:/nsdm_ApoderaVas/covariates/tpi/tpi_rds/glo_topo_chelsa2_present_pixel_1981_2010_tpi.rds")
+names(ssp3_tpi) <- "tpi"
+
+ssp3_ok <- stack(ssp3_stack, ssp3_tpi)
+names(ssp3_ok)
+
+rm(list = c("ssp3_stack", "ssp3_tpi", "bio"))
+gc()
+
+
+# 3 mask ocean
+msk <- raster("E:/nsdm_ApoderaVas/covariates/masked_tiff/mask_ocean.tif")
+ssp3_m <- raster::mask(ssp3_ok, msk)
+
+rm(list = c("ssp3_ok", "msk"))
+gc()
+
+
+# 4 get current climate variable values at each occurrence point
+occ_env <- readRDS("MESS_current_climate_rfpnt.RDS")
+
+
+# 5 Compute MESS
+mess_ssp3 <- mess(ssp3_m, occ_env)
+
+mess_ssp3_m <- readAll(mess_ssp3)
+
+writeRaster(mess_ssp3_m, "MESS_FUTssp3_climate.tif", overwrite=TRUE)
+
+
+# 6 create binary raster layer with mess values 
+mess_ssp3_m[mess_ssp3_m < 0] <- 0 # =outside reference environmental conditions range
+mess_ssp3_m[mess_ssp3_m > 0] <- 1
+
+writeRaster(mess_ssp3_m, "MESS_FUTssp3_climate_binary.tif", overwrite=TRUE)
+
+
+# 7 modify ensemble maps with mess values
+ssp3_ens <- raster("C:/Users/ebruni/Documents/run1/d15_ensembles-fut/glo/sce1/2071_2100ssp3/Apodera vas/Apodera.vas_glo_sce1_2071_2100ssp3_ensemble.tif")
+plot(ssp3_ens)
+
+ssp3_ok <- ssp3_ens * mess_ssp3_m
+plot(ssp3_ok)
+
+writeRaster(ssp3_ok, "MESS_FUTssp3_climate_final_map.tif", overwrite=TRUE)
+
+rm(list = ls())
+gc()
+
+
+
+# FUTURE: CHELSA v2.1 IPSL-CM6A-LR 2071-2100 SSP5 -------------------------------------------------------------------------
+
+# 1 create raster layer with environmental variables (bioclim) selected by n-SDM
+ssp5_stack <- list.files(path="E:/nsdm_ApoderaVas/covariates/raw_tiff/CHELSA_v2.1/IPSL-CM6A-LR_2071-2100_ssp5",
+                         pattern = c("bio1_|bio2|bio4|bio15|bio16|bio19"),
+                         full.names = TRUE) %>% 
+  raster::stack()
+
+
+# 2 change variable names
+names(ssp5_stack)
+
+bio <- 
+  names(ssp5_stack) %>% str_extract(regex("bio_?[0-9]+", ignore_case = TRUE)) %>% 
+  str_extract("[0-9]+") %>% str_remove("^0") %>% str_c("bio",.)
+
+names(ssp5_stack) <- bio
+names(ssp5_stack)
+
+
+# stack raster with TPI
+# TPI is the same as for current climate
+ssp5_tpi <- readRDS("E:/nsdm_ApoderaVas/covariates/tpi/tpi_rds/glo_topo_chelsa2_present_pixel_1981_2010_tpi.rds")
+names(ssp5_tpi) <- "tpi"
+
+ssp5_ok <- stack(ssp5_stack, ssp5_tpi)
+names(ssp5_ok)
+
+rm(list = c("ssp5_stack", "ssp5_tpi", "bio"))
+gc()
+
+
+# 3 mask ocean
+msk <- raster("E:/nsdm_ApoderaVas/covariates/masked_tiff/mask_ocean.tif")
+ssp5_m <- raster::mask(ssp5_ok, msk)
+
+rm(list = c("ssp5_ok", "msk"))
+gc()
+
+
+# 4 get current climate variable values at each occurrence point
+occ_env <- readRDS("MESS_current_climate_rfpnt.RDS")
+
+
+# 5 Compute MESS
+mess_ssp5 <- mess(ssp5_m, occ_env)
+
+mess_ssp5_m <- readAll(mess_ssp5)
+
+writeRaster(mess_ssp5_m, "MESS_FUTssp5_climate.tif", overwrite=TRUE)
+
+# 6 create binary raster layer with mess values 
+mess_ssp5_m[mess_ssp5_m < 0] <- 0 # =outside reference environmental conditions range
+mess_ssp5_m[mess_ssp5_m > 0] <- 1
+
+writeRaster(mess_ssp5_m, "MESS_FUTssp5_climate_binary.tif", overwrite=TRUE)
+
+# 7 modify ensemble maps with mess values
+ssp5_ens <- raster("C:/Users/ebruni/Documents/run1/d15_ensembles-fut/glo/sce1/2071_2100ssp5/Apodera vas/Apodera.vas_glo_sce1_2071_2100ssp5_ensemble.tif")
+plot(ssp5_ens)
+
+ssp5_ok <- ssp5_ens * mess_ssp5_m
+plot(ssp5_ok)
+
+writeRaster(ssp5_ok, "MESS_FUTssp5_climate_final_map.tif", overwrite=TRUE)
+
+rm(list = ls())
+gc()
+
+
+
+
+# PAST CHELSA 1.2 PMIP3 IPSL-CM5a-LR LGM) -------------------------------------------------------------------------
+
+# 1 create raster layer with environmental variables (bioclim) selected by n-SDM
+lgm_stack <- list.files(path="E:/nsdm_ApoderaVas/covariates/raw_tiff/lgm_PMIP3_IPSL-CM5A-LR/",
+                        pattern = c("BIO_01|BIO_02|BIO_04|BIO_15|BIO_16|BIO_19"),
+                        full.names = TRUE) %>% 
+  raster::stack()
+
+# set the right value for NAs
+values(subset(lgm_stack,1))
+NAvalue(lgm_stack) <- -32767
+values(subset(lgm_stack,1))
+
+# 2 change variable names
+names(lgm_stack)
+
+bio <- 
+  names(lgm_stack) %>% str_extract(regex("bio_?[0-9]+", ignore_case = TRUE)) %>% 
+  str_extract("[0-9]+") %>% str_remove("^0") %>% str_c("bio",.)
+
+names(lgm_stack) <- bio
+names(lgm_stack)
+
+
+# stack raster with TPI
+lgm_tpi <- raster("E:/nsdm_ApoderaVas/covariates/rds_files_all/lgm_PMIP3/tpi/glo_topo_chelsa2_future_pixel_lgm_sce1_tpi.tif")
+names(lgm_tpi) <- "tpi"
+
+lgm_ok <- stack(lgm_stack, lgm_tpi)
+names(lgm_ok)
+
+rm(list = c("lgm_stack", "lgm_tpi", "bio"))
+gc()
+
+
+# 3 mask ocean
+# here, we use the same mask as for current climate becausse this is the mask n-SDM automatically used for the LGM ensemble maps 
+msk <- raster("E:/nsdm_ApoderaVas/covariates/masked_tiff/mask_ocean.tif")
+lgm_m <- raster::mask(lgm_ok, msk)
+
+rm(list = c("lgm_ok", "msk"))
+gc()
+
+
+# 4 get current climate variable values at each occurrence point
+# columns need to be reorder to match the layers
+occ_env <- readRDS("MESS_current_climate_rfpnt.RDS") 
+colnames(occ_env)
+  
+names(lgm_m)
+col_order <- c("bio1", "bio2", "bio4", "bio15", "bio16", "bio19", "tpi")
+
+occ_ok <- occ_env[, col_order]
+colnames(occ_ok)
+
+
+# 5 Compute MESS
+mess_lgm <- mess(lgm_m, occ_ok)
+
+mess_lgm_m <- readAll(mess_lgm)
+
+writeRaster(mess_lgm_m, "MESS_PASTlgm_climate.tif", overwrite=TRUE)
+
+
+# 6 create binary raster layer with mess values 
+mess_lgm_m[mess_lgm_m < 0] <- 0 # =outside reference environmental conditions range
+mess_lgm_m[mess_lgm_m > 0] <- 1
+
+writeRaster(mess_lgm_m, "MESS_PASTlgm_climate_binary.tif", overwrite=TRUE)
+
+# 7 modify ensemble maps with mess values
+lgm_ens <- raster("F:/estelle_nsdm/run1/d15_ensembles-fut/glo/sce1/lgm/Apodera vas/Apodera.vas_glo_sce1_lgm_ensemble.tif")
+plot(lgm_ens)
+
+lgm_ok <- lgm_ens * mess_lgm_m
+plot(lgm_ok)
+
+writeRaster(lgm_ok, "MESS_PASTlgm_climate_final_map.tif", overwrite=TRUE)
+
+rm(list = ls())
+gc()
 
