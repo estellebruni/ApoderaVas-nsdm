@@ -21,3 +21,61 @@ apo_ok <- bind_rows(apo_occ, bkg_10) %>%
   as.data.frame()
 
 saveRDS(apo_ok, "ApoVas_occ_pa.rds")
+
+
+
+
+Create area for selecting background points --------
+
+# this area is considered as the area accessible to A. vas
+
+# the area for selecting background points is based on ecoregions in which Apodera vas was observed:
+# Neotropics (NT), Afrotropics (AT), Indomalaya (IM), Australasian (AA), Oceania (OC), Antarctica (AN) with glaciated areas removed
+
+# realms <- vect("biomes_ecoregions/realms_OC_NT_AT_IM_AA_AN.shp")
+# glaciers <- vect("biomes_ecoregions/glaciated_areas_WGS84.shp")
+# glaciers <- aggregate(glaciers)
+# realms_noglaciers<-erase(realms,glaciers)
+# realms_noglaciers63<-crop(realms_noglaciers,ext(-180, 180, -63, 90)) # -63 is the southernest latitude in the apodera data
+# 
+# mask<-rast("bioclim_variables/CHELSA_ai_1981-2010_V.2.1.tif")>0 # keep only continent/land and remove oceans and seas
+# writeRaster(mask, file="biomes_ecoregions/mask_current.tif", overwrite=T)
+# 
+# bio1<-rast("bioclim_variables/CHELSA_bio1_1981-2010_V.2.1.tif")
+# bio1<-mask(bio1,realms_noglaciers63)*mask
+# s<-seq(from=-22.25,to=34.75,length.out=4)
+# m <- c(s[1], s[2], 1,
+#        s[2], s[3], 2,
+#        s[3], s[4], 3)
+# rclmat <- matrix(m, ncol=3, byrow=TRUE)
+# bio1<-classify(bio1,rclmat)
+# 
+# bio12<-rast("bioclim_variables/CHELSA_bio12_1981-2010_V.2.1.tif")
+# bio12<-mask(bio12,realms_noglaciers63)*mask
+# s<-seq(from=-2.8,to=6553.5,length.out=4)
+# m <- c(s[1], s[2], 10,
+#        s[2], s[3], 20,
+#        s[3], s[4], 30)
+# rclmat <- matrix(m, ncol=3, byrow=TRUE)
+# bio12<-classify(bio12,rclmat)
+# 
+# str<-bio1+bio12
+# 
+# writeRaster(str, file="biomes_ecoregions/str_ApoVas.tif", overwrite=T)
+# rm(list = ls(pattern = "^realms"))
+# rm(list = c("apo_map", "bio1", "bio12", "glaciers", "world", "s", "m", "rclmat"))
+# gc()
+
+
+# 1.3 Get background points within selected area (str) -------------------------------------
+
+# background points selected based on environmental stratification of temperature (bio1) and precipitation (bio12)
+
+# bkg<-spatSample(str,size=1500,method="stratified",na.rm=TRUE, xy=TRUE) # get at least 10'000 background points
+# table(bkg$CHELSA_bio1_1981.2010_V.2.1)
+# 
+# # get coordinates of background points
+# bkg_coord <- dplyr::select(bkg, x, y)
+#
+# write.table(bkg, "data/bkg_points_13552.csv", sep = ",", row.names = F)
+# write.table(bkg_coord, "data/bkg_coordinates_13552.csv", sep = ",", row.names = F)
