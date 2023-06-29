@@ -1,0 +1,17 @@
+####
+# Preparation TIFF of Topographic Position Index (TPI) for LGM --------------------------------------------------
+####
+
+library(tidyverse)
+library(terra)
+
+# LGM (CHELSA v1.2 PMIP3 IPSL-CM5A-LR)
+dem_lgm<-rast("E:/nsdm_ApoderaVas/covariates/raw_tiff/high_longlat.tif")
+# file loaded from: https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/pmip3/DEM/high_longlat.tif
+
+NAflag(dem_lgm) <- 0
+
+tpi_lgm<-terrain(dem_lgm, v="TPI")
+names(tpi_lgm) <- "glo_topo_chelsa2_future_pixel_lgm_sce1_tpi"
+writeRaster(tpi_lgm, "tpi/glo_topo_chelsa2_future_pixel_lgm_sce1_tpi.tif", 
+            overwrite=TRUE)
