@@ -1,1 +1,23 @@
-TBD
+library(readxl)
+library(tidyverse)
+
+apo_occ <- read_excel("data/Table_S1_List of points_final_n401.xlsx")  %>% 
+  rename("X"="Longitude", "Y" = "Latitude") %>% 
+  dplyr::select(-c(Sample, Country, Continent, Elevation)) %>% 
+  mutate(species = c("Apodera vas"), .before=Y) %>% 
+  relocate(X, .before = Y) %>% 
+  mutate(pa = c(1))
+
+# add 10'000 bacckgorund points
+bkg_13 <- read_csv("data/bkg_points_13552.csv", show_col_types = FALSE) %>% 
+  rename("X"="x", "Y" = "y") %>% 
+  dplyr::select(-c("CHELSA_bio1_1981.2010_V.2.1")) %>% 
+  mutate(species = c("Apodera vas"), .before=X) %>% 
+  mutate(pa = c(0))
+
+bkg_10 <- bkg_13[sample(nrow(bkg_13), 10000),] 
+
+apo_ok <- bind_rows(apo_occ, bkg_10) %>% 
+  as.data.frame()
+
+saveRDS(apo_ok, "ApoVas_occ_pa.rds")
