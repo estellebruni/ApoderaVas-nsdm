@@ -1,1 +1,82 @@
-TO DO
+library(readxl)
+library(terra)
+library(plyr)
+library(tidyverse)
+library(ade4)
+library(png)
+library(grid)
+library(ggpattern)
+
+apo_occ<- read_excel("Table_S1_List of points_final_n401.xlsx",1) %>% rename("Region"="Continent") %>% 
+  mutate(Region = recode(Region,"Africa"="Afrotropics","Antarctica and sub-antarctic"="Antarctica","North America"="Central America","Asia"="Indomalaya"))
+
+files<-paste0("Z:/common/50_data/GeoData_other/EnvData/10_World/ChelsaV2.1/1981-2010/bio/CHELSA_bio",c(1,2,4,15,16,19),"_1981-2010_V.2.1.tif")
+env<-rast(files)
+
+mask<-rast("Z:/common/50_data/GeoData_other/EnvData/10_World/ChelsaV2.1/1981-2010/bio/CHELSA_ai_1981-2010_V.2.1.tif")>0
+env.mask<-mask(env,mask)
+
+str <- rast("Z:/projects-ext/Apodera/Estelle_Bruni/Apodera_vas/script_R_EB/biomes_ecoregions/str_ApoVas.tif")>0
+
+########## PCA (with CHELSA bioclim)
+
+bkg.xy<-spatSample(mask,100000,na.rm=TRUE,xy=TRUE)[,1:2]
+bkg.env<-terra::extract(env.mask,bkg.xy)[,-1]
+names(bkg.env)<-c("bio1", "bio2","bio4","bio15","bio16","bio19")
+sum(is.na(bkg.env)) #no NA
+head(bkg.env)
+
+pca<-ade4::dudi.pca(bkg.env,center = TRUE, scale=TRUE, scannf = FALSE, nf = 2)
+bkg.scores<-pca$li
+names(bkg.scores)<-c("PC1","PC2")
+
+occ.env<- terra::extract(env,apo_occ[c("Longitude","Latitude")])[,-1]
+names(occ.env)<-c("bio1", "bio2","bio4","bio15","bio16","bio19")
+sum(is.na(occ.env)) #no NA
+
+occ.scores<-ade4::suprow(pca,occ.env)$lisup
+names(occ.scores)<-c("PC1","PC2")
+
+#regions
+
+regions<-simplifyGeom(vect("regions.shp"))[,3]
+
+bkg.regions<-terra::extract(regions,vect(bkg.xy,geom=c("x","y")))
+bkg.regions<-bkg.regions$region[!duplicated(bkg.regions$id.y)]
+bkg.scores.data<- cbind(bkg.xy,bkg.scores,bkg.regions) %>%
+  filter(bkg.regions %in% c("Afrotropical","Oceanian","Central Neotropics","Antarctic","Southern Neotropics","Indomalayan")) %>%
+  mutate(bkg.regions=recode(bkg.regions,"Antarctic"="Antarctica","Central Neotropis" = "Central Neotropics", "Southern Neotropics" = "South America", "Afrotropical" = "Afrotropics", "Oceanian" = "Oceania","Indomalayan"="Indomalaya")) %>%
+  rename("Region"="bkg.regions")
+
+count_reg <- bkg.scores.data %>% 
+  group_by(Region) %>% 
+  count()
+
+
+hull<-bkg.scores.data %>% group_by(Region) %>% slice(chull(PC1,PC2))
+hull.all<-bkg.scores.data %>% slice(chull(PC1,PC2))
+
+
+#ggplot
+
+
+pe<-pca$eig
+pe<-pe/sum(pe)*100
+
+pdf("scor_ok.pdf")
+ade4::s.corcircle(pca$co,grid=F)
+dev.off()
+
+
+Region<-apo_ok$Region
+g1<-ggplot(data=NULL)+
+  scale_colour_viridis_d() +
+  geom_polygon(data=hull.all,aes(x=PC1,y=PC2),fill = "lightgrey" ) +
+  #geom_point(data=bkg.scores,color="grey",aes(x=PC1,y=PC2)) +
+  geom_point(data=occ.scores,aes(x=PC1,y=PC2,color=Region), alpha=1) +
+  labs(x=paste0("PC1 (",round(pe[1],2)," %)"),y= paste0("PC2 (",round(pe[2],2)," %)")) +
+  geom_polygon(data=hull,aes(x=PC1,y=PC2,color=Region),fill = NA, linewidth=0.5) +
+  theme_classic()
+  
+g1
+ggsave("PCA_Apodera_vas.pdf", g1, width=18, height = 12, units = "cm", dpi=1000)
