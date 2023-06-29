@@ -1,88 +1,132 @@
+library(raster)
+library(tidyverse)
+
+setwd("Z:/projects-ext/Apodera/Estelle_Bruni/Apodera_vas/nsdm/script_suppl_maps")
+
 ####
-# LGM - Last Glacial Maximum, i.e., -21'000 BP (projection) --------------------------------------------------
+# *** RUN1: LGM - Last Glacial Maximum, i.e., -21'000 BP (projection) --------------------------------------------------
 ####
 
-# DATASET: CHELSA-TraCE21k (timeID: -200) – Downscaled transient temperature and precipitation data since the last glacial maximum
+# DATASET: CHELSA v1.2 PMIP3 IPSL-CM5A-LR – Climatologies at High resolution for the Earth LandSurface Areas
 
-# CHELSA-TraCE21k (timeID: -200) – Downscaled transient temperature and precipitation data since the last glacial maximum
+# CHELSA v1.2 PMIP3 IPSL-CM5A-LR – Climatologies at High resolution for the Earth LandSurface Areas
 # Number of bioclim variables: 19 (bio1 - bio19)
-# Version: CHELSA 1.0
+# Version: CHELSA 1.2
 # Time period: Last Glacial Maximum (LGM)
-# TimeID in TraCE21k: -200 (-22 kBP)
 # Resolution: 30 arc second (0.008333333, 0.008333333  (x, y))
 # Extent: -180.0001, 179.9999, -90.00014, 83.99986  (xmin, xmax, ymin, ymax)
 # Dimensions: 20880, 43200, 902016000  (nrow, ncol, ncell)
 # CRS: +proj=longlat +datum=WGS84 +no_defs 
 
-# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/bio/CHELSA_TraCE21k_bio01_-200_V1.0.tif 
-# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/bio/CHELSA_TraCE21k_bio02_-200_V1.0.tif 
-# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/bio/CHELSA_TraCE21k_bio03_-200_V1.0.tif 
-# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/bio/CHELSA_TraCE21k_bio04_-200_V1.0.tif 
-# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/bio/CHELSA_TraCE21k_bio05_-200_V1.0.tif 
-# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/bio/CHELSA_TraCE21k_bio06_-200_V1.0.tif 
-# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/bio/CHELSA_TraCE21k_bio07_-200_V1.0.tif 
-# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/bio/CHELSA_TraCE21k_bio08_-200_V1.0.tif 
-# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/bio/CHELSA_TraCE21k_bio09_-200_V1.0.tif 
-# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/bio/CHELSA_TraCE21k_bio10_-200_V1.0.tif 
-# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/bio/CHELSA_TraCE21k_bio11_-200_V1.0.tif 
-# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/bio/CHELSA_TraCE21k_bio12_-200_V1.0.tif 
-# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/bio/CHELSA_TraCE21k_bio13_-200_V1.0.tif 
-# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/bio/CHELSA_TraCE21k_bio14_-200_V1.0.tif 
-# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/bio/CHELSA_TraCE21k_bio15_-200_V1.0.tif 
-# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/bio/CHELSA_TraCE21k_bio16_-200_V1.0.tif 
-# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/bio/CHELSA_TraCE21k_bio17_-200_V1.0.tif 
-# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/bio/CHELSA_TraCE21k_bio18_-200_V1.0.tif 
-# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/bio/CHELSA_TraCE21k_bio19_-200_V1.0.tif 
 
-paths <- list.files(path="F:/nsdm_ApoderaVas/covariates/raw_tiff/CHELSA_v2.1/TraCE21k", 
+# create a folder containing all 19 raw tiff files:
+
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/pmip3/IPSL_IPSL-CM5A-LR/CHELSA_PMIP_IPSL-CM5A-LR_BIO_01.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/pmip3/IPSL_IPSL-CM5A-LR/CHELSA_PMIP_IPSL-CM5A-LR_BIO_02.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/pmip3/IPSL_IPSL-CM5A-LR/CHELSA_PMIP_IPSL-CM5A-LR_BIO_03.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/pmip3/IPSL_IPSL-CM5A-LR/CHELSA_PMIP_IPSL-CM5A-LR_BIO_04.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/pmip3/IPSL_IPSL-CM5A-LR/CHELSA_PMIP_IPSL-CM5A-LR_BIO_05.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/pmip3/IPSL_IPSL-CM5A-LR/CHELSA_PMIP_IPSL-CM5A-LR_BIO_06.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/pmip3/IPSL_IPSL-CM5A-LR/CHELSA_PMIP_IPSL-CM5A-LR_BIO_07.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/pmip3/IPSL_IPSL-CM5A-LR/CHELSA_PMIP_IPSL-CM5A-LR_BIO_08.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/pmip3/IPSL_IPSL-CM5A-LR/CHELSA_PMIP_IPSL-CM5A-LR_BIO_09.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/pmip3/IPSL_IPSL-CM5A-LR/CHELSA_PMIP_IPSL-CM5A-LR_BIO_10.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/pmip3/IPSL_IPSL-CM5A-LR/CHELSA_PMIP_IPSL-CM5A-LR_BIO_11.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/pmip3/IPSL_IPSL-CM5A-LR/CHELSA_PMIP_IPSL-CM5A-LR_BIO_12.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/pmip3/IPSL_IPSL-CM5A-LR/CHELSA_PMIP_IPSL-CM5A-LR_BIO_13.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/pmip3/IPSL_IPSL-CM5A-LR/CHELSA_PMIP_IPSL-CM5A-LR_BIO_14.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/pmip3/IPSL_IPSL-CM5A-LR/CHELSA_PMIP_IPSL-CM5A-LR_BIO_15.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/pmip3/IPSL_IPSL-CM5A-LR/CHELSA_PMIP_IPSL-CM5A-LR_BIO_16.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/pmip3/IPSL_IPSL-CM5A-LR/CHELSA_PMIP_IPSL-CM5A-LR_BIO_17.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/pmip3/IPSL_IPSL-CM5A-LR/CHELSA_PMIP_IPSL-CM5A-LR_BIO_18.tif 
+# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/pmip3/IPSL_IPSL-CM5A-LR/CHELSA_PMIP_IPSL-CM5A-LR_BIO_19.tif 
+
+# Citations: 
+# Karger et al. (2017) Scientific Data, 4, 170122. https://doi.org/10.1038/sdata.2017.122
+# Karger et al. (2017) Dryad Digital Repository. doi.org/10.5061/dryad.kd1d4 
+
+
+
+# create raster stack with all raw tiff files  ----------------------------
+
+# create list with path to all 19 raw tiff files
+paths <- list.files(path="F:/nsdm_ApoderaVas/covariates/raw_tiff/lgm_PMIP3_IPSL-CM5A-LR/", 
                     full.names = TRUE)
 
 lgm_stack <- raster::stack(paths)
+plot(lgm_stack)
+
+# set the right value for NAs
+values(subset(lgm_stack,1))
+NAvalue(lgm_stack) <- -32767
+values(subset(lgm_stack,1))
+
+plot(lgm_stack)
 
 
-# change layer names
+# change layer names ------------------------------------------------------
+
+# level = glo
+# category = bioclim
+# dataset = chelsa2
+# period = future
+# sampling scale = pixel
+# subperiod = lgm
+# scenario: sce1
+
 names(lgm_stack)
+# [1] "CHELSA_PMIP_IPSL.CM5A.LR_BIO_01" "CHELSA_PMIP_IPSL.CM5A.LR_BIO_02" "CHELSA_PMIP_IPSL.CM5A.LR_BIO_03"
+# [4] "CHELSA_PMIP_IPSL.CM5A.LR_BIO_04" "CHELSA_PMIP_IPSL.CM5A.LR_BIO_05" "CHELSA_PMIP_IPSL.CM5A.LR_BIO_06"
+# [7] "CHELSA_PMIP_IPSL.CM5A.LR_BIO_07" "CHELSA_PMIP_IPSL.CM5A.LR_BIO_08" "CHELSA_PMIP_IPSL.CM5A.LR_BIO_09"
+# [10] "CHELSA_PMIP_IPSL.CM5A.LR_BIO_10" "CHELSA_PMIP_IPSL.CM5A.LR_BIO_11" "CHELSA_PMIP_IPSL.CM5A.LR_BIO_12"
+# [13] "CHELSA_PMIP_IPSL.CM5A.LR_BIO_13" "CHELSA_PMIP_IPSL.CM5A.LR_BIO_14" "CHELSA_PMIP_IPSL.CM5A.LR_BIO_15"
+# [16] "CHELSA_PMIP_IPSL.CM5A.LR_BIO_16" "CHELSA_PMIP_IPSL.CM5A.LR_BIO_17" "CHELSA_PMIP_IPSL.CM5A.LR_BIO_18"
+# [19] "CHELSA_PMIP_IPSL.CM5A.LR_BIO_19"
 
-# [1] "CHELSA_TraCE21k_bio01_.200_V1.0" "CHELSA_TraCE21k_bio02_.200_V1.0" "CHELSA_TraCE21k_bio03_.200_V1.0" "CHELSA_TraCE21k_bio04_.200_V1.0"
-# [5] "CHELSA_TraCE21k_bio05_.200_V1.0" "CHELSA_TraCE21k_bio06_.200_V1.0" "CHELSA_TraCE21k_bio07_.200_V1.0" "CHELSA_TraCE21k_bio08_.200_V1.0"
-# [9] "CHELSA_TraCE21k_bio09_.200_V1.0" "CHELSA_TraCE21k_bio10_.200_V1.0" "CHELSA_TraCE21k_bio11_.200_V1.0" "CHELSA_TraCE21k_bio12_.200_V1.0"
-# [13] "CHELSA_TraCE21k_bio13_.200_V1.0" "CHELSA_TraCE21k_bio14_.200_V1.0" "CHELSA_TraCE21k_bio15_.200_V1.0" "CHELSA_TraCE21k_bio16_.200_V1.0"
-# [17] "CHELSA_TraCE21k_bio17_.200_V1.0" "CHELSA_TraCE21k_bio18_.200_V1.0" "CHELSA_TraCE21k_bio19_.200_V1.0"
 
 bio <- 
   names(lgm_stack) %>% str_extract(regex("bio_?[0-9]+", ignore_case = TRUE)) %>% 
   str_extract("[0-9]+") %>% str_remove("^0") %>% str_c("bio",.)
-bio
+# [1] "bio1"  "bio2"  "bio3"  "bio4"  "bio5"  "bio6"  "bio7"  "bio8"  "bio9"  "bio10" "bio11" "bio12" "bio13" "bio14" "bio15" "bio16"
+# [17] "bio17" "bio18" "bio19"
 
-new_names <- str_c("glo_bioclim_chelsa2_future_pixel_lgm_", bio)
+new_names <- str_c("glo_bioclim_chelsa2_future_pixel_lgm_sce1_", bio)
 names(lgm_stack) <- new_names
+
 names(lgm_stack)
+# [1] "glo_bioclim_chelsa2_future_pixel_lgm_sce1_bio1"  "glo_bioclim_chelsa2_future_pixel_lgm_sce1_bio2" 
+# [3] "glo_bioclim_chelsa2_future_pixel_lgm_sce1_bio3"  "glo_bioclim_chelsa2_future_pixel_lgm_sce1_bio4" 
+# [5] "glo_bioclim_chelsa2_future_pixel_lgm_sce1_bio5"  "glo_bioclim_chelsa2_future_pixel_lgm_sce1_bio6" 
+# [7] "glo_bioclim_chelsa2_future_pixel_lgm_sce1_bio7"  "glo_bioclim_chelsa2_future_pixel_lgm_sce1_bio8" 
+# [9] "glo_bioclim_chelsa2_future_pixel_lgm_sce1_bio9"  "glo_bioclim_chelsa2_future_pixel_lgm_sce1_bio10"
+# [11] "glo_bioclim_chelsa2_future_pixel_lgm_sce1_bio11" "glo_bioclim_chelsa2_future_pixel_lgm_sce1_bio12"
+# [13] "glo_bioclim_chelsa2_future_pixel_lgm_sce1_bio13" "glo_bioclim_chelsa2_future_pixel_lgm_sce1_bio14"
+# [15] "glo_bioclim_chelsa2_future_pixel_lgm_sce1_bio15" "glo_bioclim_chelsa2_future_pixel_lgm_sce1_bio16"
+# [17] "glo_bioclim_chelsa2_future_pixel_lgm_sce1_bio17" "glo_bioclim_chelsa2_future_pixel_lgm_sce1_bio18"
+# [19] "glo_bioclim_chelsa2_future_pixel_lgm_sce1_bio19"
 
-# [1] "glo_bioclim_chelsa2_future_pixel_lgm_bio1"  "glo_bioclim_chelsa2_future_pixel_lgm_bio2"  "glo_bioclim_chelsa2_future_pixel_lgm_bio3" 
-# [4] "glo_bioclim_chelsa2_future_pixel_lgm_bio4"  "glo_bioclim_chelsa2_future_pixel_lgm_bio5"  "glo_bioclim_chelsa2_future_pixel_lgm_bio6" 
-# [7] "glo_bioclim_chelsa2_future_pixel_lgm_bio7"  "glo_bioclim_chelsa2_future_pixel_lgm_bio8"  "glo_bioclim_chelsa2_future_pixel_lgm_bio9" 
-# [10] "glo_bioclim_chelsa2_future_pixel_lgm_bio10" "glo_bioclim_chelsa2_future_pixel_lgm_bio11" "glo_bioclim_chelsa2_future_pixel_lgm_bio12"
-# [13] "glo_bioclim_chelsa2_future_pixel_lgm_bio13" "glo_bioclim_chelsa2_future_pixel_lgm_bio14" "glo_bioclim_chelsa2_future_pixel_lgm_bio15"
-# [16] "glo_bioclim_chelsa2_future_pixel_lgm_bio16" "glo_bioclim_chelsa2_future_pixel_lgm_bio17" "glo_bioclim_chelsa2_future_pixel_lgm_bio18"
-# [19] "glo_bioclim_chelsa2_future_pixel_lgm_bio19"
 
+# mask oceans using PMIP3 dem (names: "high_longlat.tif") -------------------------------------------------------------
 
-# mask oceans using TraCE21k -200 dem
-# https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/orog/CHELSA_TraCE21k_dem_-200_V1.0.tif
-dem_lgm <- raster::raster("F:/nsdm_ApoderaVas/covariates/raw_tiff/CHELSA_TraCE21k_dem_-200_V1.0.tif")
+dem <- raster("E:/nsdm_ApoderaVas/covariates/raw_tiff/high_longlat.tif")
+plot(dem) 
 
-lgm_m <- raster::mask(lgm_stack, dem_lgm)
+NAvalue(dem) <- 0
+plot(dem)
 
-rm(list = c("dem_lgm", "lgm_stack", "bio", "new_names", "paths"))
+lgm_m <- raster::mask(lgm_stack, dem)
+
+rm(list = c("dem", "lgm_stack", "bio", "new_names", "paths"))
 gc()
 
 
-# save each layer in memory and then into RDS files
 
-if (!dir.exists("lgm_rds")) dir.create("lgm_rds")
+# save each layer separately in memory and then into RDS files -----------------------
+
+if (!dir.exists("lgm_PMIP3_rds")) dir.create("lgm_PMIP3_rds")
 
 r1 <- readAll(lgm_m[[1]])
-n1 <- str_c("lgm_rds/", names(lgm_m[[1]]), ".rds")
+n1 <- str_c("lgm_PMIP3_rds/", names(lgm_m[[1]]), ".rds")
 saveRDS(r1, n1)
 
 rm(list = c("r1", "n1"))
@@ -90,7 +134,7 @@ gc()
 
 
 r2 <- readAll(lgm_m[[2]])
-n2 <- str_c("lgm_rds/", names(lgm_m[[2]]), ".rds")
+n2 <- str_c("lgm_PMIP3_rds/", names(lgm_m[[2]]), ".rds")
 saveRDS(r2, n2)
 
 rm(list = c("r2", "n2"))
@@ -98,7 +142,7 @@ gc()
 
 
 r3 <- readAll(lgm_m[[3]])
-n3 <- str_c("lgm_rds/", names(lgm_m[[3]]), ".rds")
+n3 <- str_c("lgm_PMIP3_rds/", names(lgm_m[[3]]), ".rds")
 saveRDS(r3, n3)
 
 rm(list = c("r3", "n3"))
@@ -106,7 +150,7 @@ gc()
 
 
 r4 <- readAll(lgm_m[[4]])
-n4 <- str_c("lgm_rds/", names(lgm_m[[4]]), ".rds")
+n4 <- str_c("lgm_PMIP3_rds/", names(lgm_m[[4]]), ".rds")
 saveRDS(r4, n4)
 
 rm(list = c("r4", "n4"))
@@ -114,7 +158,7 @@ gc()
 
 
 r5 <- readAll(lgm_m[[5]])
-n5 <- str_c("lgm_rds/", names(lgm_m[[5]]), ".rds")
+n5 <- str_c("lgm_PMIP3_rds/", names(lgm_m[[5]]), ".rds")
 saveRDS(r5, n5)
 
 rm(list = c("r5", "n5"))
@@ -122,7 +166,7 @@ gc()
 
 
 r6 <- readAll(lgm_m[[6]])
-n6 <- str_c("lgm_rds/", names(lgm_m[[6]]), ".rds")
+n6 <- str_c("lgm_PMIP3_rds/", names(lgm_m[[6]]), ".rds")
 saveRDS(r6, n6)
 
 rm(list = c("r6", "n6"))
@@ -130,7 +174,7 @@ gc()
 
 
 r7 <- readAll(lgm_m[[7]])
-n7 <- str_c("lgm_rds/", names(lgm_m[[7]]), ".rds")
+n7 <- str_c("lgm_PMIP3_rds/", names(lgm_m[[7]]), ".rds")
 saveRDS(r7, n7)
 
 rm(list = c("r7", "n7"))
@@ -138,7 +182,7 @@ gc()
 
 
 r8 <- readAll(lgm_m[[8]])
-n8 <- str_c("lgm_rds/", names(lgm_m[[8]]), ".rds")
+n8 <- str_c("lgm_PMIP3_rds/", names(lgm_m[[8]]), ".rds")
 saveRDS(r8, n8)
 
 rm(list = c("r8", "n8"))
@@ -146,7 +190,7 @@ gc()
 
 
 r9 <- readAll(lgm_m[[9]])
-n9 <- str_c("lgm_rds/", names(lgm_m[[9]]), ".rds")
+n9 <- str_c("lgm_PMIP3_rds/", names(lgm_m[[9]]), ".rds")
 saveRDS(r9, n9)
 
 rm(list = c("r9", "n9"))
@@ -154,7 +198,7 @@ gc()
 
 
 r10 <- readAll(lgm_m[[10]])
-n10 <- str_c("lgm_rds/", names(lgm_m[[10]]), ".rds")
+n10 <- str_c("lgm_PMIP3_rds/", names(lgm_m[[10]]), ".rds")
 saveRDS(r10, n10)
 
 rm(list = c("r10", "n10"))
@@ -162,7 +206,7 @@ gc()
 
 
 r11 <- readAll(lgm_m[[11]])
-n11 <- str_c("lgm_rds/", names(lgm_m[[11]]), ".rds")
+n11 <- str_c("lgm_PMIP3_rds/", names(lgm_m[[11]]), ".rds")
 saveRDS(r11, n11)
 
 rm(list = c("r11", "n11"))
@@ -170,7 +214,7 @@ gc()
 
 
 r12 <- readAll(lgm_m[[12]])
-n12 <- str_c("lgm_rds/", names(lgm_m[[12]]), ".rds")
+n12 <- str_c("lgm_PMIP3_rds/", names(lgm_m[[12]]), ".rds")
 saveRDS(r12, n12)
 
 rm(list = c("r12", "n12"))
@@ -178,7 +222,7 @@ gc()
 
 
 r13 <- readAll(lgm_m[[13]])
-n13 <- str_c("lgm_rds/", names(lgm_m[[13]]), ".rds")
+n13 <- str_c("lgm_PMIP3_rds/", names(lgm_m[[13]]), ".rds")
 saveRDS(r13, n13)
 
 rm(list = c("r13", "n13"))
@@ -186,7 +230,7 @@ gc()
 
 
 r14 <- readAll(lgm_m[[14]])
-n14 <- str_c("lgm_rds/", names(lgm_m[[14]]), ".rds")
+n14 <- str_c("lgm_PMIP3_rds/", names(lgm_m[[14]]), ".rds")
 saveRDS(r14, n14)
 
 rm(list = c("r14", "n14"))
@@ -194,7 +238,7 @@ gc()
 
 
 r15 <- readAll(lgm_m[[15]])
-n15 <- str_c("lgm_rds/", names(lgm_m[[15]]), ".rds")
+n15 <- str_c("lgm_PMIP3_rds/", names(lgm_m[[15]]), ".rds")
 saveRDS(r15, n15)
 
 rm(list = c("r15", "n15"))
@@ -202,7 +246,7 @@ gc()
 
 
 r16 <- readAll(lgm_m[[16]])
-n16 <- str_c("lgm_rds/", names(lgm_m[[16]]), ".rds")
+n16 <- str_c("lgm_PMIP3_rds/", names(lgm_m[[16]]), ".rds")
 saveRDS(r16, n16)
 
 rm(list = c("r16", "n16"))
@@ -210,7 +254,7 @@ gc()
 
 
 r17 <- readAll(lgm_m[[17]])
-n17 <- str_c("lgm_rds/", names(lgm_m[[17]]), ".rds")
+n17 <- str_c("lgm_PMIP3_rds/", names(lgm_m[[17]]), ".rds")
 saveRDS(r17, n17)
 
 rm(list = c("r17", "n17"))
@@ -218,7 +262,7 @@ gc()
 
 
 r18 <- readAll(lgm_m[[18]])
-n18 <- str_c("lgm_rds/", names(lgm_m[[18]]), ".rds")
+n18 <- str_c("lgm_PMIP3_rds/", names(lgm_m[[18]]), ".rds")
 saveRDS(r18, n18)
 
 rm(list = c("r18", "n18"))
@@ -226,9 +270,8 @@ gc()
 
 
 r19 <- readAll(lgm_m[[19]])
-n19 <- str_c("lgm_rds/", names(lgm_m[[19]]), ".rds")
+n19 <- str_c("lgm_PMIP3_rds/", names(lgm_m[[19]]), ".rds")
 saveRDS(r19, n19)
 
 rm(list = ls())
 gc()
-
