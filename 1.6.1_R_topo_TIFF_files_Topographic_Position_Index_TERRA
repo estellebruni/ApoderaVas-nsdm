@@ -57,13 +57,3 @@ writeRaster(soilT_crop, "tpi/glo_topo_chelsa2_future_pixel_1979_2013_tpi.tif",
 
 rm(list = ls())
 gc()
-
-
-# LGM (TraCE21k, -200)
-dem_lgm<-rast("F:/nsdm_ApoderaVas/covariates/raw_tiff/CHELSA_v2.1/CHELSA_TraCE21k_dem_-200_V1.0.tif")
-# file loaded from: https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V1/chelsa_trace/orog/CHELSA_TraCE21k_dem_-200_V1.0.tif
-
-tpi_lgm<-terrain(dem_lgm, v="TPI")
-names(tpi_lgm) <- "glo_topo_chelsa2_future_pixel_lgm_tpi"
-writeRaster(tpi_lgm, "tpi/glo_topo_chelsa2_future_pixel_lgm_tpi.tif", 
-            overwrite=TRUE)
