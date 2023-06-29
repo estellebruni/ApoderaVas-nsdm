@@ -312,3 +312,128 @@ writeRaster(lgm_ok, "MESS_PASTlgm_climate_final_map.tif", overwrite=TRUE)
 rm(list = ls())
 gc()
 
+
+
+
+####
+# Multivariate environmental similarity surface (MESS) as desribed by Elith et al., 2010 --------------------------------------------------
+####
+
+library(tidyverse)
+library(raster)
+library(dismo)
+
+
+# SOIL TEMP -------------------------------------------------------------------------
+
+# selected covariates: bio1, bio3, bio4,bio12, bio14, bio15, bio19, TPI
+
+
+# 1 create raster layer with environmental variables selected by n-SDM
+
+# Soil temperature
+
+temp_st <- list.files(path="E:/nsdm_ApoderaVas/covariates/raw_tiff/SoilTemp_v2/",
+                       pattern = c("SBIO1_|SBIO3|SBIO4"),
+                       full.names = TRUE) %>% 
+  raster::stack()
+
+names(temp_st)
+
+bio <- 
+  names(temp_st) %>% str_extract(regex("bio_?[0-9]+", ignore_case = TRUE)) %>% 
+  str_extract("[0-9]+") %>% str_remove("^0") %>% str_c("bio",.)
+
+names(temp_st) <- bio
+names(temp_st)
+
+
+# Precipitation
+
+prec_st <- list.files(path="E:/nsdm_ApoderaVas/covariates/raw_tiff/CHELSA_v2.1/1981-2010",
+                         pattern = c("bio12|bio14|bio15|bio19"),
+                         full.names = TRUE) %>% 
+  raster::stack()  
+
+names(prec_st)
+
+bio <- 
+  names(prec_st) %>% str_extract(regex("bio_?[0-9]+", ignore_case = TRUE)) %>% 
+  str_extract("[0-9]+") %>% str_remove("^0") %>% str_c("bio",.)
+
+names(prec_st) <- bio
+names(prec_st)
+
+
+msk <- raster("E:/nsdm_ApoderaVas/covariates/masked_tiff/mask_ocean.tif")
+msk
+
+ex <- extent(-180, 179.9999, -88.00833, 83.99986) # get min values for each
+msk_ex <- setExtent(msk, ex, keepres = TRUE)
+msk_ex
+
+
+
+temp_ok <- raster::crop(temp_st, extent(msk_ex))
+
+prec_ok <- raster::crop(prec_st, extent(msk_ex))
+
+
+# stack raster together and with TPI
+pres_tpi <- readRDS("E:/nsdm_ApoderaVas/covariates/tpi/tpi_rds/glo_topo_chelsa2_present_pixel_1981_2010_tpi.rds")
+names(pres_tpi) <- "tpi"
+
+tpi_ok <- raster::crop(pres_tpi, extent(msk_ex))
+
+pres_ok <- stack(temp_ok, prec_ok, tpi_ok)
+names(pres_ok)
+
+rm(list = c("prec_st", "prec_ok","pres_tpi", "tpi_ok", "ex", "msk", "temp_st", "temp_ok","bio"))
+gc()
+
+
+# 3 mask ocean
+pres_m <- raster::mask(pres_ok, msk_ex)
+
+rm(list = c("pres_ok", "msk_ex"))
+gc()
+
+
+# 4 get Apodera vas occurrences and background absences
+occ_apo <- readRDS("E:/nsdm_ApoderaVas/species/ApoVas_occ_pa.rds") %>% 
+  subset(., select=-c(pa, species))
+
+
+# 5 extract variable values at each occurrence point
+occ_env <- raster::extract(pres_m, occ_apo) %>% 
+  as.data.frame() %>% 
+  drop_na("bio1")
+
+saveRDS(occ_env, "MESS_SoilTemp_rfpnt.RDS")
+
+# 6 Compute MESS
+mess_pres <- mess(pres_m, occ_env)
+
+mess_pres_m <- readAll(mess_pres)
+
+writeRaster(mess_pres_m, "MESS_SoilTemp.tif", overwrite=TRUE)
+
+# 7 create binary raster layer with mess values 
+mess_pres_m[mess_pres_m < 0] <- 0 # =outside reference environmental conditions range
+mess_pres_m[mess_pres_m > 0] <- 1
+
+writeRaster(mess_pres_m, "MESS_SoilTemp_binary.tif", overwrite=TRUE)
+
+# 8 modify ensemble maps with mess values
+pres_ens <- raster("C:/Users/ebruni/Documents/run2/d8_ensembles/glo/Apodera vas/Apodera.vas_glo_ensemble.tif")
+plot(pres_ens)
+
+pres_ok <- pres_ens * mess_pres_m
+plot(pres_ok)
+
+writeRaster(pres_ok, "MESS_SoilTemp_final_map.tif", overwrite=TRUE)
+
+rm(list = ls())
+gc()
+
+
