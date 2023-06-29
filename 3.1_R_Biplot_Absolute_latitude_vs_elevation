@@ -1,0 +1,28 @@
+library(readxl)
+library(tidyterra)
+library(tidyverse)
+library(ggpubr)
+library(maps)
+
+
+apo_occ <- read_excel("Table_S1_List of points_final_n401.xlsx") %>% 
+  mutate(Continent = recode(Continent,"Africa"="Afrotropics",
+                         "Antarctica and sub-antarctic"="Antarctica",
+                         "North America"="Central America",
+                         "Asia"="Indomalaya"))
+
+abs(apo_occ$Latitude)
+
+biplot <- ggplot(apo_occ, aes(abs(Latitude), Elevation, color=Continent)) +
+  geom_point() +
+  geom_smooth(aes(color = NULL), method=lm, se=TRUE) +
+  theme_bw() +
+  scale_colour_viridis_d() +
+  stat_cor(aes(color = NULL), label.x = 25, label.y = 4800) +
+  stat_regline_equation(aes(color = NULL), label.x = 25, label.y = 4300) +
+  theme(legend.position = "none") +
+  xlab("Absolute Latitude")
+
+biplot
+
+ggsave("biplot_Apodera_vas.pdf", biplot, width=17.1, height = 6.7, units = "cm", dpi=1000)
