@@ -32,6 +32,8 @@ Create area for selecting background points --------
 # the area for selecting background points is based on ecoregions in which Apodera vas was observed:
 # Neotropics (NT), Afrotropics (AT), Indomalaya (IM), Australasian (AA), Oceania (OC), Antarctica (AN) with glaciated areas removed
 
+# library(terra)
+
 # realms <- vect("biomes_ecoregions/realms_OC_NT_AT_IM_AA_AN.shp")
 # glaciers <- vect("biomes_ecoregions/glaciated_areas_WGS84.shp")
 # glaciers <- aggregate(glaciers)
